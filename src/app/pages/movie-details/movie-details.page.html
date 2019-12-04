@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detail</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Job Number : {{ item.jobnumber }}</ion-card-subtitle>
+      <ion-card-title>Detail Data</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-row>
+        <ion-col size="4">Building Address</ion-col><ion-col size="6">{{item.buildingaddress}}</ion-col>
+        <ion-col size="4">Doorlocation</ion-col><ion-col size="6">{{item.doorlocation}}</ion-col>
+        <ion-col size="4">Condition</ion-col><ion-col size="6">{{item.condition}}</ion-col>
+        <ion-col size="4">Conditionofglazingstopsglasssweepsweatherstrippingthreshold</ion-col><ion-col size="6">{{item.conditionofglazingstopsglasssweepsweatherstrippingthreshold}}</ion-col>
+        <!-- <ion-col size="4">Doorpicture1</ion-col><ion-col size="6"><a (click)="openWebsite(item.doorpicture1)">{{item.doorpicture1}}</a></ion-col> -->
+        <ion-col size="4">Doorpicture1</ion-col><ion-col size="6"><ion-img [src]="'https://drive.google.com/thumbnail?id='+item.doorpicture1"></ion-img></ion-col>
+        <ion-col size="4">General Condition Of Deadlatch</ion-col><ion-col size="6">{{item.generalconditionofdeadlatch}}</ion-col>
+        <ion-col size="4">Handle Type</ion-col><ion-col size="6">{{item.handletype}}</ion-col>
+        <ion-col size="4">Hinge Type</ion-col><ion-col size="6">{{item.hingetype}}</ion-col>
+        <ion-col size="4">Inspected By</ion-col><ion-col size="6">{{item.inspectedby}}</ion-col>
+        <ion-col size="4">Inspected On</ion-col><ion-col size="6">{{item.inspectedon}}</ion-col>
+        <ion-col size="4">Isitinstalledproperlydoesitinterferewiththeoperationofthedooretc</ion-col><ion-col size="6">{{item.isitinstalledproperlydoesitinterferewiththeoperationofthedooretc}}</ion-col>
+        <ion-col size="4">Manufacturer Label</ion-col><ion-col size="6">{{item.manufacturerlabel}}</ion-col>
+        <!-- <ion-col size="4">Picture of bottom pivot</ion-col><ion-col size="6"><a (click)="openWebsite(item.pictureofbottompivot)">{{item.pictureofbottompivot}}</a></ion-col> -->
+        <ion-col size="4">Picture of bottom pivot</ion-col><ion-col size="6"><ion-img [src]="'https://drive.google.com/thumbnail?id='+item.pictureofbottompivot"></ion-img></ion-col>
+        <ion-col size="4" *ngIf="item.pictureoflatchguard">Picture of latchguard</ion-col><ion-col size="6" *ngIf="item.pictureoflatchguard"><ion-img [src]="'https://drive.google.com/thumbnail?id='+item.pictureoflatchguard"></ion-img></ion-col>
+        <ion-col size="4">Picture of the handle</ion-col><ion-col size="6"><ion-img [src]="'https://drive.google.com/thumbnail?id='+item.pictureofthehandle"></ion-img></ion-col>
+        <ion-col size="4">Picture of the strike</ion-col><ion-col size="6"><ion-img [src]="'https://drive.google.com/thumbnail?id='+item.pictureofthestrike"></ion-img></ion-col>
+        <ion-col size="4">Picure of the deadlatch</ion-col><ion-col size="6"><ion-img [src]="'https://drive.google.com/thumbnail?id='+item.picureofthedeadlatch"></ion-img></ion-col>
+        <ion-col size="4">Pircure of top pivot</ion-col><ion-col size="6"><ion-img [src]="'https://drive.google.com/thumbnail?id='+item.pircureoftoppivot"></ion-img></ion-col>
+        <!-- <ion-col size="4">Picture of latchguard</ion-col><ion-col size="6"><a (click)="openWebsite(item.pictureoflatchguard)">{{item.pictureoflatchguard}}</a></ion-col>
+        <ion-col size="4">Picture of the handle</ion-col><ion-col size="6"><a (click)="openWebsite(item.pictureofthehandle)">{{item.pictureofthehandle}}</a></ion-col>
+        <ion-col size="4">Picture of the strike</ion-col><ion-col size="6"><a (click)="openWebsite(item.pictureofthestrike)">{{item.pictureofthestrike}}</a></ion-col> -->
+        <!-- <ion-col size="4">Picure of the deadlatch</ion-col><ion-col size="6"><a (click)="openWebsite(item.picureofthedeadlatch)">{{item.picureofthedeadlatch}}</a></ion-col> -->
+        <!-- <ion-col size="4">Pircure of top pivot</ion-col><ion-col size="6"><a (click)="openWebsite(item.pircureoftoppivot)">{{item.pircureoftoppivot}}</a></ion-col> -->
+        <ion-col size="4">Proper Doorcloser Size</ion-col><ion-col size="6">{{item.properdoorclosersize}}</ion-col>
+        <ion-col size="4">Proper faceplate</ion-col><ion-col size="6">{{item.properfaceplate}}</ion-col>
+        <ion-col size="4">Properlyinstalled</ion-col><ion-col size="6">{{item.properlyinstalled}}</ion-col>
+        <ion-col size="4">See Video Button</ion-col><ion-col size="6">{{item.seevideobutton}}</ion-col>
+        <ion-col size="4">Time of inspection</ion-col><ion-col size="6">{{item.timeofinspection}}</ion-col>
+        <!-- <ion-col size="4">Video of door operation</ion-col><ion-col size="6"><a (click)="openWebsite(item.videoofdooroperation)">{{item.videoofdooroperation}}</a></ion-col> -->
+        <ion-col size="4">Video of door operation</ion-col><ion-col size="6">
+          <!-- <video width="320" height="240" controls>
+            <source [src]="'https://drive.google.com/thumbnail?id='+item.videoofdooroperation" type="video/mp4">
+          </video> -->
+          <iframe frameborder="0" width="100%" height="auto" [src]="sanitizer.bypassSecurityTrustResourceUrl(item.videoofdooroperation)" allowfullscreen="true" allow="autoplay"></iframe>
+        </ion-col>
+      </ion-row>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Google Sheet Search</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-searchbar [(ngModel)]="searchTerm" (ionChange)="searchChanged($event)"></ion-searchbar>
+
+  <ion-item>
+    <ion-label>Select Searchtype</ion-label>
+    <ion-select [(ngModel)]="type" (ionChange)="searchChanged($event)">
+      <ion-select-option value="">Job Number</ion-select-option>
+      <ion-select-option value="DoorId">Door Id</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-content>
+    <!-- <ion-grid> -->
+      <ion-row>
+        <ion-col size="12" sizeSm="12" sizeMd="6" sizeLg="3" *ngFor="let item of searchResults" (click)="moreDetails(item)">
+          <ion-item button >
+            <ion-label class="ion-text-wrap">
+              <ion-card-subtitle>Job Number : {{ item.jobnumber }}</ion-card-subtitle>
+              Updated Date : {{item.timestamp | date:'h:mm a z'}}
+            </ion-label>
+            <ion-icon slot="end" name="arrow-dropright"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    <!-- </ion-grid> -->
+    <br/><br/><br/>
+  <!-- <ion-list>
+
+    <ion-item button *ngFor="let item of searchResults" (click)="moreDetails(item)">
+
+      <ion-label class="ion-text-wrap">
+
+        <ion-card-subtitle>Job Number : {{ item.jobnumber }}</ion-card-subtitle>
+        Building Address: {{item.buildingaddress}}
+      </ion-label>
+
+      <ion-icon slot="end" name="arrow-dropright"></ion-icon>
+    </ion-item>
+
+  </ion-list> -->
+
+
+
+</ion-content>
