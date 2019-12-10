@@ -1,50 +1,300 @@
-import { MovieService } from './../../services/movie.service';
+import { MovieService, SearchType } from './../../services/movie.service';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-movie-details',
   templateUrl: './movie-details.page.html',
   styleUrls: ['./movie-details.page.scss'],
 })
+
 export class MovieDetailsPage implements OnInit {
 
-  information = null;
+  results: any;
+  searchResults: any;
+  searchTerm: string = '';
+  type: SearchType = SearchType.all;
+  pageType = 'job';
+  isDetailPage = true;
+  paramId = -1;
+  detailIteam = {};
+  loading : any;
 
-  /**
-   * Constructor of our details page
-   * @param activatedRoute Information about the route we are on
-   * @param movieService The movie Service to get data
-   */
-  item = {};
-  constructor(private activatedRoute: ActivatedRoute, private movieService: MovieService, public sanitizer: DomSanitizer) { }
+  constructor(public loadingController: LoadingController, private movieService: MovieService, private router: Router, private activatedRoute: ActivatedRoute, public sanitizer: DomSanitizer) { }
 
   ngOnInit() {
-    // Get the ID that was passed with the URL
+
     var param = this.activatedRoute.snapshot.paramMap;
     if(param['params']){
-      this.item = JSON.parse(JSON.stringify(param['params']));
+      console.log(param['params']);
 
-      if (this.item['doorpicture1'])
-        this.item['doorpicture1'] = this.item['doorpicture1'].split("id=")[1];
-      if (this.item['pictureofbottompivot'])
-        this.item['pictureofbottompivot'] = this.item['pictureofbottompivot'].split("id=")[1];
-      if (this.item['pictureoflatchguard'])
-        this.item['pictureoflatchguard'] = this.item['pictureoflatchguard'].split("id=")[1];
-      if (this.item['pictureofthehandle'])
-        this.item['pictureofthehandle'] = this.item['pictureofthehandle'].split("id=")[1];
-      if (this.item['pictureofthestrike'])
-        this.item['pictureofthestrike'] = this.item['pictureofthestrike'].split("id=")[1];
-      if (this.item['picureofthedeadlatch'])
-        this.item['picureofthedeadlatch'] = this.item['picureofthedeadlatch'].split("id=")[1];
-      if (this.item['pircureoftoppivot'])
-        this.item['pircureoftoppivot'] = this.item['pircureoftoppivot'].split("id=")[1];
-      if (this.item['videoofdooroperation'])
-        this.item['videoofdooroperation'] = 'https://drive.google.com/file/d/'+this.item['videoofdooroperation'].split("id=")[1]+'/preview';
-      console.log(this.item);
+      var p = param['params'];
+
+      var jobid;
+      var doorid;
+
+      if(p['jobid']){
+        jobid = p['jobid'];
+        console.log(jobid);
+      }
+
+      if(p['doorid']){
+        doorid = p['doorid'];
+        console.log(doorid);
+      }
+
+      if(jobid != undefined){
+        this.pageType = 'job';
+        this.isDetailPage = true;
+        this.paramId = jobid;
+        this.getAllJobData();
+      }
+      if(doorid != undefined){
+        this.pageType = 'door';
+        this.isDetailPage = true;
+        this.paramId = doorid;
+        this.getAllDoorData();
+      }
+      if(jobid == undefined && doorid == undefined){
+        this.pageType = 'job';
+        this.isDetailPage = false;
+        this.paramId = -1;
+        this.getAllJobData();
+      }
+      console.log(this.pageType);
     }
-    console.log(param['params']);
+
+  }
+
+  async presentLoading() {
+    this.loading = await this.loadingController.create({
+      message: 'Loading...',
+      duration: 2000
+    });
+    await this.loading.present();
+  }
+
+  moreDetails(item){
+    console.log(item);
+    if(this.pageType == 'job'){
+      this.router.navigate(['/job-details', {doorid:item['jobnumber']}]);
+    }else{
+      this.router.navigate(['/job-details', {jobid:item['doorid']}]);
+    }
+
+  }
+
+  searchChanged() {
+    console.log(this.pageType);
+    if(this.pageType == 'job'){
+      var self = this;
+      if(this.searchTerm == ''){
+        this.getAllJobData();
+      }else{
+        self.searchResults = [];
+        for(var i=0; i < self.results.length; i++){
+          var itemdata = JSON.stringify(self.results[i]);
+          if(itemdata.search(this.searchTerm) > 0 ){
+            self.searchResults.push(self.results[i]);
+          }
+        }
+      }
+    }else{
+      var self = this;
+      if(this.searchTerm == ''){
+        this.getAllDoorData();
+      }else{
+        self.searchResults = [];
+        for(var i=0; i < self.results.length; i++){
+          var itemdata = JSON.stringify(self.results[i]);
+          if(itemdata.search(this.searchTerm) > 0 ){
+            self.searchResults.push(self.results[i]);
+          }
+        }
+      }
+    }
+  }
+
+  async getAllDoorData() {
+    var self = this;
+    self.results = [];
+    self.searchResults = [];
+    await this.presentLoading();
+    this.movieService.getAllDoorData(this.searchTerm, this.type).subscribe((res => {
+      this.loading.onDidDismiss();
+      console.log(res.feed.entry);
+      if(res.feed && res.feed.entry){
+
+        //parse goodle sheet data
+        for(var i=0; i < res.feed.entry.length; i++){
+          if(res.feed.entry[i].content && res.feed.entry[i].content.$t){
+            var str = res.feed.entry[i].content.$t;
+            var splitarray = str.split(",");
+            var jsondata = "";
+            for(var j=0; j< splitarray.length; j++){
+              var itemarray = splitarray[j].split(":");
+              var jitem = itemarray[0].trim();
+              var jvalue = splitarray[j].replace(jitem+":", "");
+              jvalue = jvalue.replace(/"/g , "'");
+              jsondata += '"' + jitem + '"' + ':' + '"' + jvalue.trim() + '"';
+
+              if(j !== splitarray.length-1){
+                jsondata += ",";
+              }
+            }
+
+            jsondata = "{" + jsondata + "}";
+            jsondata = JSON.parse(jsondata);
+            console.log(jsondata);
+            if(jsondata['doorid']){
+              if(res.feed.entry[i].updated && res.feed.entry[i].updated.$t)
+                jsondata['timestamp'] = res.feed.entry[i].updated.$t;
+
+              self.results.push(jsondata);
+            }else{
+              // jsondata['doorid'] = 'NONE';
+              // if(res.feed.entry[i].updated && res.feed.entry[i].updated.$t)
+              //   jsondata['timestamp'] = res.feed.entry[i].updated.$t;
+              //
+              // self.results.push(jsondata);
+            }
+            self.searchResults = self.results;
+          }
+        }
+
+
+        //get detail item data
+        if(this.isDetailPage == true && this.paramId != -1){
+          for(var i=0; i< self.results.length; i++){
+            self.results[i]['isJob'] = false;
+
+            //self.results[i] = JSON.parse(JSON.stringify(self.results[i]));
+            if(self.results[i]['doorid'] == self.paramId){
+              if (self.results[i]['doorpicture1'])
+                self.results[i]['doorpicture1'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['doorpicture1'].split("id=")[1];
+                if (self.results[i]['doorpicture2'])
+                  self.results[i]['doorpicture2'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['doorpicture2'].split("id=")[1];
+              if (self.results[i]['pictureofbottomhinge'])
+                self.results[i]['pictureofbottomhinge'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofbottomhinge'].split("id=")[1];
+              if (self.results[i]['pictureofdeadbolt'])
+                self.results[i]['pictureofdeadbolt'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofdeadbolt'].split("id=")[1];
+              if (self.results[i]['pictureofframefrominside'])
+                self.results[i]['pictureofframefrominside'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofframefrominside'].split("id=")[1];
+              if (self.results[i]['pictureofframefromoutside'])
+                self.results[i]['pictureofframefromoutside'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofframefromoutside'].split("id=")[1];
+              if (self.results[i]['pictureofmiddlehinge'])
+                self.results[i]['pictureofmiddlehinge'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofmiddlehinge'].split("id=")[1];
+              if (self.results[i]['pictureofsweep'])
+                self.results[i]['pictureofsweep'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofsweep'].split("id=")[1];
+              if (self.results[i]['pictureofthelock'])
+                self.results[i]['pictureofthelock'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofthelock'].split("id=")[1];
+              if (self.results[i]['pictureofthreshold'])
+                self.results[i]['pictureofthreshold'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofthreshold'].split("id=")[1];
+              if (self.results[i]['pictureoftophinge'])
+                self.results[i]['pictureoftophinge'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureoftophinge'].split("id=")[1];
+              if (self.results[i]['profilepictureofweatherstipping'])
+                self.results[i]['profilepictureofweatherstipping'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['profilepictureofweatherstipping'].split("id=")[1];
+              if (self.results[i]['videoofdooroperation'])
+                self.results[i]['videoofdooroperation'] = 'https://drive.google.com/file/d/'+self.results[i]['videoofdooroperation'].split("id=")[1]+'/preview';
+
+              self.detailIteam = self.results[i];
+            }
+          }
+        }
+
+        console.log(self.results);
+
+      }
+    }), (err) => {
+      console.log(err);
+    });
+  }
+
+  async getAllJobData() {
+    var self = this;
+    self.results = [];
+    self.searchResults = [];
+    await this.presentLoading();
+    this.movieService.getAllJobData(this.searchTerm, this.type).subscribe((res => {
+      this.loading.onDidDismiss();
+      console.log(res.feed.entry);
+      if(res.feed && res.feed.entry){
+        for(var i=0; i < res.feed.entry.length; i++){
+          if(res.feed.entry[i].content && res.feed.entry[i].content.$t){
+            var str = res.feed.entry[i].content.$t;
+            var splitarray = str.split(",");
+            var jsondata = "";
+            for(var j=0; j< splitarray.length; j++){
+              var itemarray = splitarray[j].split(":");
+              var jitem = itemarray[0].trim();
+              var jvalue = splitarray[j].replace(jitem+":", "");
+              jvalue = jvalue.replace(/"/g , "'");
+              jsondata += '"' + jitem + '"' + ':' + '"' + jvalue.trim() + '"';
+
+              if(j !== splitarray.length-1){
+                jsondata += ",";
+              }
+            }
+
+            jsondata = "{" + jsondata + "}";
+            jsondata = JSON.parse(jsondata);
+            console.log(jsondata);
+            if(jsondata['jobnumber']){
+              if(res.feed.entry[i].updated && res.feed.entry[i].updated.$t)
+                jsondata['timestamp'] = res.feed.entry[i].updated.$t;
+
+              self.results.push(jsondata);
+            }else{
+              // jsondata['jobnumber'] = 'NONE';
+              // if(res.feed.entry[i].updated && res.feed.entry[i].updated.$t)
+              //   jsondata['timestamp'] = res.feed.entry[i].updated.$t;
+              //
+              // self.results.push(jsondata);
+            }
+            self.searchResults = self.results;
+          }
+        }
+
+        //get detail item data
+        if(this.isDetailPage == true && this.paramId != -1){
+          for(var i=0; i< self.results.length; i++){
+            self.results[i]['isJob'] = true;
+
+            //self.results[i] = JSON.parse(JSON.stringify(self.results[i]));
+            if(self.results[i]['jobnumber'] == self.paramId){
+              if (self.results[i]['doorpicture1'])
+                self.results[i]['doorpicture1'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['doorpicture1'].split("id=")[1];
+                if (self.results[i]['doorpicture2'])
+                  self.results[i]['doorpicture2'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['doorpicture2'].split("id=")[1];
+              if (self.results[i]['pictureofbottompivot'])
+                self.results[i]['pictureofbottompivot'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofbottompivot'].split("id=")[1];
+              if (self.results[i]['pictureofdoorcloser'])
+                self.results[i]['pictureofdoorcloser'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofdoorcloser'].split("id=")[1];
+              if (self.results[i]['pictureofthehandle'])
+                self.results[i]['pictureofthehandle'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofthehandle'].split("id=")[1];
+              if (self.results[i]['pictureofthestrike'])
+                self.results[i]['pictureofthestrike'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pictureofthestrike'].split("id=")[1];
+              if (self.results[i]['picureofthedeadlatch'])
+                self.results[i]['picureofthedeadlatch'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['picureofthedeadlatch'].split("id=")[1];
+              if (self.results[i]['pircureoftoppivot'])
+                self.results[i]['pircureoftoppivot'] = 'https://drive.google.com/thumbnail?id='+self.results[i]['pircureoftoppivot'].split("id=")[1];
+              if (self.results[i]['videoofdooroperation'])
+                self.results[i]['videoofdooroperation'] = 'https://drive.google.com/file/d/'+self.results[i]['videoofdooroperation'].split("id=")[1]+'/preview';
+
+              self.detailIteam = self.results[i];
+              console.log(self.detailIteam);
+            }
+          }
+        }
+
+        console.log(self.results);
+      }
+    }), (err) => {
+      console.log(err);
+    });
   }
 
   openWebsite(link) {

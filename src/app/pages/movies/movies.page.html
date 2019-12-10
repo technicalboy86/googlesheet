@@ -1,25 +1,24 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Google Sheet Search</ion-title>
+    <ion-title>Google Sheet Data</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
-  <ion-searchbar [(ngModel)]="searchTerm" (ionChange)="searchChanged($event)"></ion-searchbar>
+  <!-- <ion-searchbar [(ngModel)]="searchTerm" (ionChange)="searchChanged($event)"></ion-searchbar> -->
 
-  <ion-item>
+  <ion-item *ngIf="!isDetailPage">
     <ion-label>Select Searchtype</ion-label>
-    <ion-select [(ngModel)]="type" (ionChange)="searchChanged($event)">
-      <ion-select-option value="">Job Number</ion-select-option>
-      <ion-select-option value="DoorId">Door Id</ion-select-option>
+    <ion-select [(ngModel)]="pageType" (ionChange)="searchChanged($event)">
+      <ion-select-option value="job">Job</ion-select-option>
+      <ion-select-option value="door">Door</ion-select-option>
     </ion-select>
   </ion-item>
 
-  <ion-content>
-    <!-- <ion-grid> -->
-      <ion-row>
-        <ion-col size="12" sizeSm="12" sizeMd="6" sizeLg="3" *ngFor="let item of searchResults" (click)="moreDetails(item)">
+  <ion-content  *ngIf="!isDetailPage">
+      <ion-row *ngIf="pageType == 'job'">
+        <ion-col size="12" sizeSm="12" sizeMd="6" *ngFor="let item of searchResults" (click)="moreDetails(item)">
           <ion-item button >
             <ion-label class="ion-text-wrap">
               <ion-card-subtitle>Job Number : {{ item.jobnumber }}</ion-card-subtitle>
@@ -29,23 +28,407 @@
           </ion-item>
         </ion-col>
       </ion-row>
-    <!-- </ion-grid> -->
+
+      <ion-row *ngIf="pageType == 'door'">
+        <ion-col size="12" sizeSm="12" sizeMd="6" *ngFor="let item of searchResults" (click)="moreDetails(item)">
+          <ion-item button >
+            <ion-label class="ion-text-wrap">
+              <ion-card-subtitle>Door ID : {{ item.doorid }}</ion-card-subtitle>
+              Updated Date : {{item.timestamp | date:'h:mm a z'}}
+            </ion-label>
+            <ion-icon slot="end" name="arrow-dropright"></ion-icon>
+          </ion-item>
+        </ion-col>
+      </ion-row>
     <br/><br/><br/>
-  <!-- <ion-list>
+</ion-content>
 
-    <ion-item button *ngFor="let item of searchResults" (click)="moreDetails(item)">
+<ion-content  *ngIf="isDetailPage">
+  <ion-list *ngIf="pageType == 'job'">
+        <ion-list-header>
+          Notes
+        </ion-list-header>
 
-      <ion-label class="ion-text-wrap">
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Inspected by</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.inspectedby_2}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Inspected on</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.inspectedon_2}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
-        <ion-card-subtitle>Job Number : {{ item.jobnumber }}</ion-card-subtitle>
-        Building Address: {{item.buildingaddress}}
-      </ion-label>
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Proper door closer size</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.properdoorclosersize}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Handle Type</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.hingetype}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
-      <ion-icon slot="end" name="arrow-dropright"></ion-icon>
-    </ion-item>
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Condition</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.condition}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Proper faceplate	</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.properfaceplate}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
 
-  </ion-list> -->
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">General condition of deadlatch</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.generalconditionofdeadlatch}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Properly installed</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.properlyinstalled}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Is it installed properly, does it interfere with the operation of the door, etc</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.isitinstalledproperlydoesitinterferewiththeoperationofthedooretc}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Hinge type</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.hingetype}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Condition of glazing stops, glass, sweeps, weather stripping, threshold.</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.conditionofglazingstopsglasssweepsweatherstrippingthreshold}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Is the door closer installed properly</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.isthedoorcloserinstalledproperly}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Is the door closer adjusted properly</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.isthedoorcloseradjustedproperly}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Timestamp</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.timestamp | date:'h:mm a z'}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-list-header>
+          Pictures
+        </ion-list-header>
+        <div class="flex-container" >
+          <div *ngIf="detailIteam.doorpicture1" class="ion-padding"><ion-img [src]="detailIteam.doorpicture1"></ion-img></div>
+          <div *ngIf="detailIteam.doorpicture2" class="ion-padding"><ion-img [src]="detailIteam.doorpicture2"></ion-img></div>
+          <div *ngIf="detailIteam.pictureofbottompivot" class="ion-padding"><ion-img [src]="detailIteam.pictureofbottompivot"></ion-img></div>
+          <div *ngIf="detailIteam.pictureofdoorcloser" class="ion-padding"><ion-img [src]="detailIteam.pictureofdoorcloser"></ion-img></div>
+          <div *ngIf="detailIteam.pictureofthehandle" class="ion-padding"><ion-img [src]="detailIteam.pictureofthehandle"></ion-img></div>
+          <div *ngIf="detailIteam.pictureofthestrike" class="ion-padding"><ion-img [src]="detailIteam.pictureofthestrike"></ion-img></div>
+          <div *ngIf="detailIteam.picureofthedeadlatch" class="ion-padding"><ion-img [src]="detailIteam.picureofthedeadlatch"></ion-img></div>
+          <div *ngIf="detailIteam.pircureoftoppivot" class="ion-padding"><ion-img [src]="detailIteam.pircureoftoppivot"></ion-img></div>
+        </div>
+
+        <ion-list-header>
+          Video
+        </ion-list-header>
+        <div *ngIf="detailIteam.videoofdooroperation" class="ion-padding">
+          <iframe frameborder="0" width="500px" height="auto" [src]="sanitizer.bypassSecurityTrustResourceUrl(detailIteam.videoofdooroperation)" allowfullscreen="true" allow="autoplay"></iframe>
+        </div>
 
 
 
+  </ion-list>
+
+  <ion-list *ngIf="pageType == 'door'">
+        <ion-list-header>
+          Notes
+        </ion-list-header>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Building Address</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.buildingaddress}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Inspected by</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.hingetype}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Inspected on</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.inspectedon}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Door location</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.doorlocation}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Width</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.width}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Height</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.height}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Thickness</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.thickness}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Windows (are there windows present, if so recod type of glass, size of windows, type of frame)</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.windowsaretherewindowspresentifsorecodtypeofglasssizeofwindowstypeofframe}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Type of lock, make, model, deficiencies</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.typeoflockmakemodeldeficiencies}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Finish</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.finish}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Type of lock, make, model, deficiencies</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.typeoflockmakemodeldeficiencies_2}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Finish</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.finish_2}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Is it installed properly, does it interfere with the operation of the door, etc</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.isitinstalledproperlydoesitinterferewiththeoperationofthedooretc}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Hinge type	</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.hingetype}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Height</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.height_2}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Width</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.width_2}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Weight</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.buildingaddress}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">NRP</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.nrp}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Thickness</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.thickness_2}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Windows</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.buildingaddress}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Measure from top of frame to top of first hinge</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.measurefromtopofframetotopoffirsthinge}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Measure from top of frame to top of second hinge</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.measurefromtopofframetotopofsecondhinge}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Measure from top of frame to top of third hinge</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.measurefromtopofframetotopofthirdhinge}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Type (welded, knockdown, or other, how is it anchored)</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.typeweldedknockdownorotherhowisitanchored}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Fill (grouted, insulation, wrap around)</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.fillgroutedinsulationwraparound}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Threshold (installed properly at the right location)</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.thresholdinstalledproperlyattherightlocation}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Sweep (installed properly, making proper seal)</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.sweepinstalledproperlymakingproperseal}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Weather Stripping (general condition, making proper seal, profile)</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.weatherstrippinggeneralconditionmakingpropersealprofile}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Proper door closer size	</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.properdoorclosersize}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Is the door closer installed properly</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.isthedoorcloserinstalledproperly}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Comment (make model and other items of note)</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.commentmakemodelandotheritemsofnote}}</ion-text>
+            </ion-item>
+          </ion-col>
+          <ion-col size="12" sizeSm="12" sizeMd="12" sizeLg="6">
+            <ion-item>
+              <ion-text color="dark">Timestamp</ion-text>
+              <ion-text color="primary" class="detail-txt">: {{detailIteam.timestamp | date:'h:mm a z'}}</ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+
+
+        <ion-list-header>
+          Pictures
+        </ion-list-header>
+        <ion-img [src]="detailIteam.doorpicture1"></ion-img>
+  </ion-list>
+  <br/><br/><br/>
 </ion-content>

@@ -15,7 +15,8 @@ export enum SearchType {
   providedIn: 'root'
 })
 export class MovieService {
-  url = 'https://spreadsheets.google.com/feeds/list/1L7R-Skarxot3dGQ6P41LQq7ConBuaC8L_IWlM9zQYcQ/1/public/full?alt=json';
+  joburl = 'https://spreadsheets.google.com/feeds/list/1L7R-Skarxot3dGQ6P41LQq7ConBuaC8L_IWlM9zQYcQ/2/public/full?alt=json';
+  doorurl = 'https://spreadsheets.google.com/feeds/list/1L7R-Skarxot3dGQ6P41LQq7ConBuaC8L_IWlM9zQYcQ/1/public/full?alt=json';
   apiKey = ''; // <-- Enter your own key here!
 
   /**
@@ -32,8 +33,12 @@ export class MovieService {
   * @param {SearchType} type movie, series, episode or empty
   * @returns Observable with the search results
   */
-  searchData(title: string, type: SearchType): Observable<any> {
-    return this.http.get(`${this.url}`);
+  getAllJobData(title: string, type: SearchType): Observable<any> {
+    return this.http.get(`${this.joburl}`);
+  }
+
+  getAllDoorData(title: string, type: SearchType): Observable<any> {
+    return this.http.get(`${this.doorurl}`);
   }
 
   /**
@@ -43,6 +48,6 @@ export class MovieService {
   * @returns Observable with detailed information
   */
   getDetails(id) {
-    return this.http.get(`${this.url}`);
+    return this.http.get(`${this.joburl}`);
   }
 }
